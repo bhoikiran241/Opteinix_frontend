@@ -3,7 +3,20 @@ import { useEffect, useMemo, useState } from "react";
 import { Star, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { products } from "../data/ProductsData";
+
+// 🔹 Product type (matches MongoDB backend)
+type Product = {
+  _id: string;
+  name: string;
+  image: string;
+  images?: string[];
+  price: number;
+  originalPrice?: number;
+  rating: number;
+  discount?: string;
+  description?: string;
+  specifications?: string[];
+};
 
 export default function Shop() {
   const navigate = useNavigate();
@@ -11,8 +24,24 @@ export default function Shop() {
   /* -------------------- State -------------------- */
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  /* -------------------- Debounce (FAST) -------------------- */
+  /* -------------------- Fetch Products From Backend -------------------- */
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching products:", err);
+        setLoading(false);
+      });
+  }, []);
+
+  /* -------------------- Debounce Search -------------------- */
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(query.trim().toLowerCase());
@@ -21,26 +50,21 @@ export default function Shop() {
     return () => clearTimeout(timer);
   }, [query]);
 
-  /* -------------------- Filter Logic for shop -------------------- */
+  /* -------------------- Filter Logic -------------------- */
   const filteredProducts = useMemo(() => {
     if (!debouncedQuery) return products;
 
-    return products.filter(product =>
+    return products.filter((product) =>
       product.name.toLowerCase().includes(debouncedQuery)
     );
-  }, [debouncedQuery]);
+  }, [debouncedQuery, products]);
 
-
-
-
-  /* shop page */
+  /* -------------------- UI -------------------- */
   return (
     <section className="min-h-screen bg-gradient-to-b from-white to-blue-50 py-20">
       <div className="container mx-auto px-6">
 
-
-        {/* Shop page 1 */}
-        {/* Optenix World */}
+        {/* Title */}
         <motion.div
           className="text-center mb-12"
           initial={{ opacity: 0, y: -40 }}
@@ -60,8 +84,7 @@ export default function Shop() {
           </p>
         </motion.div>
 
-
-        {/* Search placeholder */}
+        {/* Search Bar */}
         <div className="max-w-xl mx-auto mb-16 relative">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -72,16 +95,25 @@ export default function Shop() {
             className="w-full pl-14 pr-6 py-4 rounded-full border border-gray-300
                        focus:outline-none focus:ring-2 focus:ring-blue-500
                        text-lg shadow-sm"
-            aria-label="Search products"
           />
         </div>
 
-        {/* Filtered Results  */}
-        {filteredProducts.length === 0 ? (
+        {/* Loading */}
+        {loading && (
+          <p className="text-center text-lg text-gray-500">
+            Loading products...
+          </p>
+        )}
+
+        {/* No Results */}
+        {!loading && filteredProducts.length === 0 && (
           <p className="text-center text-lg text-gray-500">
             No products match your search.
           </p>
-        ) : (
+        )}
+
+        {/* Products Grid */}
+        {!loading && filteredProducts.length > 0 && (
           <motion.div
             className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
             initial="hidden"
@@ -94,8 +126,8 @@ export default function Shop() {
           >
             {filteredProducts.map((product, index) => (
               <motion.div
-                key={product.id}
-                onClick={() => navigate(`/shop/${product.id}`)}
+                key={product._id}
+                onClick={() => navigate(`/shop/${product._id}`)}
                 className="bg-white rounded-2xl border shadow-sm hover:shadow-xl
                            p-4 flex flex-col transition cursor-pointer"
                 initial={{ opacity: 0, y: 30 }}
@@ -147,8 +179,8 @@ export default function Shop() {
                 {/* Action */}
                 <button
                   onClick={(e) => {
-                    e.stopPropagation(); // prevent double navigation
-                    navigate(`/shop/${product.id}`);
+                    e.stopPropagation();
+                    navigate(`/shop/${product._id}`);
                   }}
                   className="mt-auto bg-blue-600 hover:bg-blue-700 text-white
                              font-semibold py-2 rounded-full transition"

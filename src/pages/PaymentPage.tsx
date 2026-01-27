@@ -30,27 +30,80 @@ export default function Payment() {
   const [cardError, setCardError] = useState(false);
 
   /* ---------------- PAY HANDLER ---------------- */
-  const handlePay = () => {
-    if (method === "upi") {
-      if (!upiId.trim()) {
-        setUpiError(true);
-        return;
-      }
+  const handleRazorpayPay = async () => {
+  // ---------------- VALIDATION FIRST ----------------
 
-      alert("Demo UPI Payment Successful");
-      navigate("/success");
+  if (method === "upi") {
+    if (!upiId.trim()) {
+      setUpiError(true);
+      return;
     }
+  }
 
-    if (method === "card") {
-      if (!cardNumber.trim()) {
-        setCardError(true);
-        return;
-      }
-
-      alert("Demo Card Payment Successful");
-      navigate("/success");
+  if (method === "card") {
+    if (!cardNumber.trim()) {
+      setCardError(true);
+      return;
     }
-  };
+  }
+
+  // ---------------- THEN OPEN RAZORPAY ----------------
+  try {
+    const res = await fetch("http://localhost:5000/api/payment/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: totalAmount }),
+    });
+
+    const data = await res.json();
+
+    const options = {
+      key: "rzp_test_xxxxxxxx", // ONLY KEY ID
+      amount: data.order.amount,
+      currency: "INR",
+      name: "My Shop",
+      description: "Test Transaction",
+      order_id: data.order.id,
+
+      handler: async function (response: any) {
+        const verifyRes = await fetch(
+          "http://localhost:5000/api/payment/verify",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response),
+          }
+        );
+
+        const verifyData = await verifyRes.json();
+
+        if (verifyData.success) {
+          alert("Payment Successful!");
+          navigate("/success");
+        } else {
+          alert("Payment verification failed");
+        }
+      },
+
+      prefill: {
+        name: customer.name,
+        email: customer.email,
+      },
+
+      theme: {
+        color: "#3399cc",
+      },
+    };
+
+    const rzp = new (window as any).Razorpay(options);
+    rzp.open();
+
+  } catch (error) {
+    console.error(error);
+    alert("Payment failed to start");
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center py-6 px-2">
@@ -159,7 +212,7 @@ export default function Payment() {
                     )}
 
                     <button
-                      onClick={handlePay}
+                      onClick={handleRazorpayPay}
                       className="w-full bg-gray-700 hover:bg-gray-800 text-white py-3 rounded font-semibold"
                     >
                       Pay ₹{totalAmount}
@@ -239,7 +292,7 @@ export default function Payment() {
 
                     {/* PAY BUTTON */}
                     <button
-                      onClick={handlePay}
+                      onClick={handleRazorpayPay}
                       className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded text-lg"
                     >
                       Pay ₹{totalAmount}

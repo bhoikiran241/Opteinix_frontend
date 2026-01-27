@@ -14,7 +14,7 @@ import Services from "./pages/Services";
 import Login from "./authenticate/Login";
 import Register from "./authenticate/Register";
 import CartPage from "./pages/CartPage";
-import Admin from "./authenticate/Admin";
+import AdminProducts from "./authenticate/AdminProducts";
 
 import ScrollToTop from "./others/ScrollToTop";
 
@@ -80,7 +80,7 @@ function App() {
           {/* AFTER LOGIN */}
           <Route path="/home" element={<Home />} />
 
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin" element={<AdminProducts />} />
 
           <Route path="/profile" element={<Profile />} />
         </Routes>

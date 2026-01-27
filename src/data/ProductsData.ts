@@ -4,8 +4,9 @@ import hollyland_lark_m2s from "../images/hollyland_lark_m2s.jpg";
 import Senheiser_XSW1_ME3_A from "../images/Sennheiser_XSW 1_ME3_A.jpg";
 import Digitek_DWM_108 from "../images/Digitek_DWM_108.jpg";
 import Interactive_flat_panel from "../images/interactive_flat_panel.png";
+import Iphone from "../images/iphone_17_pro_max.webp";
 
-export type Product = {
+export type Product = { 
   id: string;
   name: string;
   image: string;
@@ -121,8 +122,7 @@ export const products: Product[] = [
     originalPrice: 98000,
     rating: 4.4,
     discount: "18% off",
-    description:
-      "75 Inch Optenix Interactive Flat Panel S65 (65 inch)",
+    description: "75 Inch Optenix Interactive Flat Panel S65 (65 inch)",
     specifications: [
       "Diagonal Size: 65 inch",
       "Backlight Life (typ.): ≥ 50,000 Hours",
@@ -140,11 +140,11 @@ export const products: Product[] = [
       "CPU: 2.0 GHz Quad-Core ARM A55",
       "GPU: Mali-G52 MP2",
       "Sound Channel: 2.0",
-      "Power Output: 2 × 20W"
+      "Power Output: 2 × 20W",
     ],
   },
 
-   {
+  {
     id: "7",
     name: "75 Inch Optenix Interactive Flat Panel S75 (75 inch)",
     image: Interactive_flat_panel,
@@ -153,8 +153,7 @@ export const products: Product[] = [
     originalPrice: 98000,
     rating: 4.4,
     discount: "18% off",
-    description:
-      "75 Inch Optenix Interactive Flat Panel S75 (75 inch)",
+    description: "75 Inch Optenix Interactive Flat Panel S75 (75 inch)",
     specifications: [
       "Diagonal Size: 65 inch",
       "Backlight Life (typ.): ≥ 50,000 Hours",
@@ -172,11 +171,11 @@ export const products: Product[] = [
       "CPU: 2.0 GHz Quad-Core ARM A55",
       "GPU: Mali-G52 MP2",
       "Sound Channel: 2.0",
-      "Power Output: 2 × 20W"
+      "Power Output: 2 × 20W",
     ],
   },
 
-   {
+  {
     id: "8",
     name: "75 Inch Optenix Interactive Flat Panel S86 (86 inch)",
     image: Interactive_flat_panel,
@@ -185,8 +184,7 @@ export const products: Product[] = [
     originalPrice: 98000,
     rating: 4.4,
     discount: "18% off",
-    description:
-      "75 Inch Optenix Interactive Flat Panel S86 (86 inch)",
+    description: "75 Inch Optenix Interactive Flat Panel S86 (86 inch)",
     specifications: [
       "Diagonal Size: 75 inch",
       "Backlight Life (typ.): ≥ 50,000 Hours",
@@ -204,7 +202,37 @@ export const products: Product[] = [
       "CPU: 2.0 GHz Quad-Core ARM A55",
       "GPU: Mali-G52 MP2",
       "Sound Channel: 2.0",
-      "Power Output: 2 × 20W"
+      "Power Output: 2 × 20W",
+    ],
+  },
+  {
+    id: "9",
+    name: "iphone 16",
+    image: Iphone,
+    images: [Iphone],
+    price: 1,
+    originalPrice: 98000,
+    rating: 4.4,
+    discount: "18% off",
+    description: "75 Inch Optenix Interactive Flat Panel S86 (86 inch)",
+    specifications: [
+      "Diagonal Size: 75 inch",
+      "Backlight Life (typ.): ≥ 50,000 Hours",
+      "Resolution: 3840 × 2160 (4K UHD)",
+      "Contrast Ratio (Typ.): 1,200 : 1",
+      "Contrast Ratio (Dynamic): 50,000 : 1",
+      "Color Depth: 1.07B (10-bit)",
+      "Color Gamut (typ.): 72% NTSC",
+      "Color Accuracy: Delta E ≤ 2",
+      "Eye Care: TÜV Low Blue Light, TÜV Flicker Free",
+      "Panel Brightness: 400 nits",
+      "Operating System: Android 13.0",
+      "RAM: 8 GB",
+      "ROM (Storage): 128 GB",
+      "CPU: 2.0 GHz Quad-Core ARM A55",
+      "GPU: Mali-G52 MP2",
+      "Sound Channel: 2.0",
+      "Power Output: 2 × 20W",
     ],
   },
 ];
