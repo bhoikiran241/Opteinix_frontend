@@ -3,20 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Star, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-
-// 🔹 Product type (matches MongoDB backend)
-type Product = {
-  _id: string;
-  name: string;
-  image: string;
-  images?: string[];
-  price: number;
-  originalPrice?: number;
-  rating: number;
-  discount?: string;
-  description?: string;
-  specifications?: string[];
-};
+import { products as ProductsData, Product } from "../data/ProductsData"; // 🔹 import static data
 
 export default function Shop() {
   const navigate = useNavigate();
@@ -27,18 +14,10 @@ export default function Shop() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  /* -------------------- Fetch Products From Backend -------------------- */
+  /* -------------------- Load Static Products -------------------- */
   useEffect(() => {
-    fetch("http://localhost:5000/api/products")
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching products:", err);
-        setLoading(false);
-      });
+    setProducts(ProductsData);
+    setLoading(false);
   }, []);
 
   /* -------------------- Debounce Search -------------------- */
@@ -53,7 +32,6 @@ export default function Shop() {
   /* -------------------- Filter Logic -------------------- */
   const filteredProducts = useMemo(() => {
     if (!debouncedQuery) return products;
-
     return products.filter((product) =>
       product.name.toLowerCase().includes(debouncedQuery)
     );
@@ -100,9 +78,7 @@ export default function Shop() {
 
         {/* Loading */}
         {loading && (
-          <p className="text-center text-lg text-gray-500">
-            Loading products...
-          </p>
+          <p className="text-center text-lg text-gray-500">Loading products...</p>
         )}
 
         {/* No Results */}
@@ -126,8 +102,8 @@ export default function Shop() {
           >
             {filteredProducts.map((product, index) => (
               <motion.div
-                key={product._id}
-                onClick={() => navigate(`/shop/${product._id}`)}
+                key={product.id}
+                onClick={() => navigate(`/shop/${product.id}`)}
                 className="bg-white rounded-2xl border shadow-sm hover:shadow-xl
                            p-4 flex flex-col transition cursor-pointer"
                 initial={{ opacity: 0, y: 30 }}
@@ -137,11 +113,17 @@ export default function Shop() {
               >
                 {/* Image */}
                 <div className="bg-gray-50 rounded-xl p-4 mb-4 flex items-center justify-center">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="h-36 object-contain"
-                  />
+                  {product.image ? (
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="h-36 object-contain"
+                    />
+                  ) : (
+                    <div className="h-36 flex items-center justify-center text-gray-400">
+                      No Image
+                    </div>
+                  )}
                 </div>
 
                 {/* Name */}
@@ -155,14 +137,14 @@ export default function Shop() {
                     <Star
                       key={i}
                       className={`w-4 h-4 ${
-                        i < Math.round(product.rating)
+                        i < Math.round(product.rating ?? 0)
                           ? "fill-blue-400 text-blue-500"
                           : "text-gray-300"
                       }`}
                     />
                   ))}
                   <span className="text-sm text-blue-900 ml-1">
-                    {product.rating.toFixed(1)}
+                    {(product.rating ?? 0).toFixed(1)}
                   </span>
                 </div>
 
@@ -180,7 +162,7 @@ export default function Shop() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigate(`/shop/${product._id}`);
+                    navigate(`/shop/${product.id}`);
                   }}
                   className="mt-auto bg-blue-600 hover:bg-blue-700 text-white
                              font-semibold py-2 rounded-full transition"

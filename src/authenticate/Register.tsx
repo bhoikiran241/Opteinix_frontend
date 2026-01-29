@@ -1,201 +1,142 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
 export default function Register() {
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Where to go after register (default = home)
-  const state = location.state as any;
-
-  const from = state?.from || "/"; // page where user came from
-  const redirectTo = state?.redirectTo || "/"; // final target (place-order)
-
-  // after user is registered + logged in
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState("");
+  const API_URL = import.meta.env.VITE_API_URL;
 
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-
-  // ✅ Email validation
-  const validateEmail = (value: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!value) {
-      setEmailError("Email is required");
-      return false;
-    }
-
-    if (!emailRegex.test(value)) {
-      setEmailError("Please enter a valid email address");
-      return false;
-    }
-
-    setEmailError("");
-    return true;
-  };
-
-  // ✅ Password + Confirm validation
-  const validatePasswords = (pass: string, confirmPass: string) => {
-    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
-
-    if (!pass || !confirmPass) {
-      setPasswordError("Password and confirm password are required");
-      return false;
-    }
-
-    if (!specialCharRegex.test(pass)) {
-      setPasswordError("Password must contain at least one special character");
-      return false;
-    }
-
-    if (pass !== confirmPass) {
-      setPasswordError("Passwords do not match");
-      return false;
-    }
-
-    setPasswordError("");
-    return true;
-  };
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEmail(value);
-    validateEmail(value);
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setPassword(value);
-    validatePasswords(value, confirmPassword);
-  };
-
-  const handleConfirmPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const value = e.target.value;
-    setConfirmPassword(value);
-    validatePasswords(password, value);
-  };
-
-  // 🔥 FRONTEND-ONLY SUBMIT (NO BACKEND)
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const isEmailValid = validateEmail(email);
-    const isPasswordValid = validatePasswords(password, confirmPassword);
+    if (!API_URL) {
+      alert("API URL not configured");
+      return;
+    }
 
-    if (!isEmailValid || !isPasswordValid) return;
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
 
-    // ✅ TEST SUCCESS FLOW
-    alert("Registered successfully! (Test Mode)");
+    setLoading(true);
 
-    // First go back to the page where Buy Now was clicked (cart)
-    navigate(from, { replace: true });
+    try {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      });
 
-    // After small delay, go to place-order automatically
-    setTimeout(() => {
-      navigate(redirectTo);
-    }, 200);
+      // 🔐 SAFETY: handle non-JSON responses
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Registration failed");
+      }
+
+      const data = await res.json();
+
+      alert("Registered successfully");
+      navigate("/login");
+
+    } catch (err: any) {
+      alert(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#2b0057] to-[#2f1fff] px-4">
-      <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          Create an Account
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-8 rounded-lg w-full max-w-md shadow">
+        <h2 className="text-2xl font-bold mb-6 text-center">
+          Register
         </h2>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* Full Name (optional, UI only) */}
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
             placeholder="Full Name"
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-3 border rounded"
           />
 
-          {/* Email */}
-          <div>
-            <input
-              type="email"
-              placeholder="Email address"
-              value={email}
-              onChange={handleEmailChange}
-              onBlur={() => validateEmail(email)}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${
-                emailError
-                  ? "border-red-500 focus:ring-red-500"
-                  : "focus:ring-blue-600"
-              }`}
-              required
-            />
-            {emailError && (
-              <p className="text-sm text-red-600 mt-1">{emailError}</p>
-            )}
-          </div>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-3 border rounded"
+            required
+          />
 
-          {/* Password */}
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={password}
-              onChange={handlePasswordChange}
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 pr-12"
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 border rounded pr-12"
               required
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+              className="absolute right-3 top-3 text-gray-500"
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
-          {/* Confirm Password */}
           <div className="relative">
             <input
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm Password"
               value={confirmPassword}
-              onChange={handleConfirmPasswordChange}
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 pr-12"
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full p-3 border rounded pr-12"
               required
             />
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+              className="absolute right-3 top-3 text-gray-500"
             >
-              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
-          {/* Password Error */}
-          {passwordError && (
-            <p className="text-sm text-red-600 -mt-2">{passwordError}</p>
-          )}
-
-          {/* Submit */}
           <button
             type="submit"
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg"
+            disabled={loading}
+            className={`w-full py-3 rounded text-white ${
+              loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
 
-        <p className="text-center text-gray-600 mt-4">
+        <p className="text-center mt-4">
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 font-medium">
+          <Link to="/login" className="text-blue-600">
             Login
           </Link>
         </p>
