@@ -71,9 +71,9 @@ export default function ProductDetails() {
     setActiveImage(images[0]);
   }, [product]);
 
-  const visibleSpecs: string[] = showAllSpecs
-    ? product.specifications
-    : product.specifications.slice(0, 6);
+  // const visibleSpecs: string[] = showAllSpecs
+  //   ? product.specifications
+  //   : product.specifications.slice(0, 6);
 
   // -------------------- Price Calculation --------------------
   const basePrice = product.price * qty;
@@ -83,7 +83,7 @@ export default function ProductDetails() {
   // -------------------- Add To Cart --------------------
   const handleAddToCart = () => {
     const item = {
-      id: product.id,
+      id: product.id!,
       name: product.name,
       price: product.price,
       image: activeImage,
@@ -98,7 +98,7 @@ export default function ProductDetails() {
   // -------------------- Buy Now --------------------
   const handleBuyNow = () => {
     const item = {
-      id: product.id,
+      id: product.id!,
       name: product.name,
       price: finalPrice,
       image: activeImage,
@@ -107,7 +107,7 @@ export default function ProductDetails() {
     addToCart(item);
 
     if (!user) {
-      navigate("/login", {
+      navigate("/register", {
         state: {
           from: location.pathname,
           redirectTo: `/shop/${product.id}`,

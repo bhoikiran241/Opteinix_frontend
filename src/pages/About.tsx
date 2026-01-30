@@ -66,26 +66,26 @@ export default function About() {
   ];
 
   // team member data(fixed)
-  const team = [
-    {
-      name: "Sarah Johnson",
-      role: "CEO & Founder",
-      image:
-        "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400",
-    },
-    {
-      name: "Michael Chen",
-      role: "CTO",
-      image:
-        "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=400",
-    },
-    {
-      name: "David Kim",
-      role: "Lead Developer",
-      image:
-        "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400",
-    },
-  ];
+  // const team = [
+  //   {
+  //     name: "Sarah Johnson",
+  //     role: "CEO & Founder",
+  //     image:
+  //       "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400",
+  //   },
+  //   {
+  //     name: "Michael Chen",
+  //     role: "CTO",
+  //     image:
+  //       "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=400",
+  //   },
+  //   {
+  //     name: "David Kim",
+  //     role: "Lead Developer",
+  //     image:
+  //       "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400",
+  //   },
+  // ];
 
 
 
@@ -378,7 +378,7 @@ export default function About() {
         whileInView="visible"
         viewport={{ once: true }}
       >
-        <div className="container mx-auto ">
+        {/* <div className="container mx-auto ">
           <h2 className="text-4xl font-bold text-blue-700 text-center mb-16">
             Meet Our Leadership
           </h2>
@@ -394,7 +394,7 @@ export default function About() {
               </motion.div>
             ))}
           </div>
-        </div>
+        </div> */}
       </motion.section>
     </div>
   );

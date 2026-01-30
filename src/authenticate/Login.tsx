@@ -20,7 +20,6 @@ export default function Login() {
 
   // Redirect after login
   const from = state?.from || "/shop";
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   const validateEmail = (value: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,7 +41,8 @@ export default function Login() {
 
   if (!validateEmail(email) || !validatePassword(password)) return;
 
-  
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    
   try {
     const res = await fetch(`${API_URL}/api/auth/login`, {
       method: "POST",
