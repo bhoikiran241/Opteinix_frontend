@@ -3,7 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Star, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { products as ProductsData, Product } from "../data/ProductsData"; // 🔹 import static data
+import { getAllProducts } from "../utils/productStore";
+import { Product } from "../types/Product";
 
 export default function Shop() {
   const navigate = useNavigate();
@@ -14,9 +15,10 @@ export default function Shop() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  /* -------------------- Load Static Products -------------------- */
+  /* -------------------- Load Products -------------------- */
   useEffect(() => {
-    setProducts(ProductsData);
+    const allProducts = getAllProducts(); // ✅ base + admin products
+    setProducts(allProducts);
     setLoading(false);
   }, []);
 
@@ -100,77 +102,84 @@ export default function Shop() {
               hidden: {},
             }}
           >
-            {filteredProducts.map((product, index) => (
-              <motion.div
-                key={product.id}
-                onClick={() => navigate(`/shop/${product.id}`)}
-                className="bg-white rounded-2xl border shadow-sm hover:shadow-xl
-                           p-4 flex flex-col transition cursor-pointer"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.03 }}
-              >
-                {/* Image */}
-                <div className="bg-gray-50 rounded-xl p-4 mb-4 flex items-center justify-center">
-                  {product.image ? (
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-36 object-contain"
-                    />
-                  ) : (
-                    <div className="h-36 flex items-center justify-center text-gray-400">
-                      No Image
-                    </div>
-                  )}
-                </div>
+            {filteredProducts.map((product, index) => {
+              // ✅ Ensure rating is a number
+              const rating = typeof product.rating === "number"
+                ? product.rating
+                : parseFloat(product.rating as any) || 0;
 
-                {/* Name */}
-                <h3 className="text-md font-semibold text-gray-900 mb-2">
-                  {product.name}
-                </h3>
-
-                {/* Rating */}
-                <div className="flex items-center gap-1 mb-3">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-4 h-4 ${
-                        i < Math.round(product.rating ?? 0)
-                          ? "fill-blue-400 text-blue-500"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  ))}
-                  <span className="text-sm text-blue-900 ml-1">
-                    {(product.rating ?? 0).toFixed(1)}
-                  </span>
-                </div>
-
-                {/* Price */}
-                <div className="text-2xl font-bold text-blue-900 mb-4">
-                  ₹{product.price}
-                  {product.originalPrice && (
-                    <span className="text-base font-normal text-gray-400 line-through ml-2">
-                      ₹{product.originalPrice}
-                    </span>
-                  )}
-                </div>
-
-                {/* Action */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/shop/${product.id}`);
-                  }}
-                  className="mt-auto bg-blue-600 hover:bg-blue-700 text-white
-                             font-semibold py-2 rounded-full transition"
+              return (
+                <motion.div
+                  key={product.id}
+                  onClick={() => navigate(`/shop/${product.id}`)}
+                  className="bg-white rounded-2xl border shadow-sm hover:shadow-xl
+                             p-4 flex flex-col transition cursor-pointer"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.03 }}
                 >
-                  View Details
-                </button>
-              </motion.div>
-            ))}
+                  {/* Image */}
+                  <div className="bg-gray-50 rounded-xl p-4 mb-4 flex items-center justify-center">
+                    {product.image ? (
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="h-36 object-contain"
+                      />
+                    ) : (
+                      <div className="h-36 flex items-center justify-center text-gray-400">
+                        No Image
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Name */}
+                  <h3 className="text-md font-semibold text-gray-900 mb-2">
+                    {product.name}
+                  </h3>
+
+                  {/* Rating */}
+                  <div className="flex items-center gap-1 mb-3">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i < Math.round(rating)
+                            ? "fill-blue-400 text-blue-500"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                    <span className="text-sm text-blue-900 ml-1">
+                      {rating.toFixed(1)}
+                    </span>
+                  </div>
+
+                  {/* Price */}
+                  <div className="text-2xl font-bold text-blue-900 mb-4">
+                    ₹{product.price}
+                    {product.originalPrice && (
+                      <span className="text-base font-normal text-gray-400 line-through ml-2">
+                        ₹{product.originalPrice}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Action */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/shop/${product.id}`);
+                    }}
+                    className="mt-auto bg-blue-600 hover:bg-blue-700 text-white
+                               font-semibold py-2 rounded-full transition"
+                  >
+                    View Details
+                  </button>
+                </motion.div>
+              );
+            })}
           </motion.div>
         )}
       </div>

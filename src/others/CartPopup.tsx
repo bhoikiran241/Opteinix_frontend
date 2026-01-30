@@ -1,23 +1,17 @@
 // src/components/CartPopup.tsx
-import { useCart } from "../context/CartContext";
+import { useCart, CartItem } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
   onClose: () => void;
-  item: {
-    id: number;
-    name: string;
-    price: number;
-    image: string;
-    quantity: number;
-  };
+  item: CartItem; // 🔹 use CartItem type with id: string
 }
 
 export default function CartPopup({ onClose, item }: Props) {
   const { cartItems } = useCart();
   const navigate = useNavigate();
 
-  const totalQty = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalQty = cartItems.reduce((sum, cartItem) => sum + cartItem.quantity, 0);
 
   if (!item) return null;
 
@@ -36,12 +30,8 @@ export default function CartPopup({ onClose, item }: Props) {
 
         <div className="flex-1">
           <p className="font-medium">{item.name}</p>
-          <p className="text-sm text-gray-600">
-            Qty: {item.quantity}
-          </p>
-          <p className="font-bold text-blue-700">
-            ₹{item.price}
-          </p>
+          <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+          <p className="font-bold text-blue-700">₹{item.price}</p>
         </div>
       </div>
 
